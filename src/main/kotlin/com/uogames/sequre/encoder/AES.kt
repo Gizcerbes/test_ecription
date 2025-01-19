@@ -41,7 +41,8 @@ object AES {
         data: String,
         type: TYPE
     ): ByteArray {
-        val ivBytes = data.padEnd((8 - data.length % 8) + data.length, ' ').toByteArray()
+        val ivBytes = data.padEnd((16 - data.length % 16) + data.length, ' ').toByteArray()
+        println("TAG ${ivBytes.size}")
         return aesEncrypt(keyBytes, ivBytes, type)
     }
 
