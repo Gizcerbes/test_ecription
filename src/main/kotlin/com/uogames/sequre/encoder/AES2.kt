@@ -5,7 +5,7 @@ import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
-object AES {
+object AES2 {
 
     enum class TYPE(val transformer: String) {
         AES_CBC_NO_PADDING("AES/CBC/NoPadding"),
@@ -16,24 +16,28 @@ object AES {
 
     private val provider = BouncyCastleProvider()
 
-    private fun getCipher(type:String) = Cipher.getInstance(type, provider)
+    private fun getCipher(type: String) = Cipher.getInstance(type, provider)
+
+    private fun initCipher(
+        keyBytes: ByteArray,
+        type: TYPE,
+        mode: Int
+    ): Cipher {
+        val spec = SecretKeySpec(keyBytes, "AES")
+        val cipher = getCipher(type.transformer)
+        when (type) {
+            TYPE.AES_ECB_NO_PADDING, TYPE.AES_ECB_PKCS_5_PADDING -> cipher.init(mode, spec)
+            else -> cipher.init(mode, spec, IvParameterSpec(ByteArray(16)))
+        }
+        return cipher
+    }
 
     fun aesEncrypt(
         keyBytes: ByteArray,
         ivBytes: ByteArray,
         type: TYPE
     ): ByteArray {
-        when (keyBytes.size) {
-            16, 24, 32 -> {}
-            else -> throw Exception("keyBytes must have size of 16, 24 or 32 bytes")
-        }
-        val spec = SecretKeySpec(keyBytes, "AES")
-        val cipher = getCipher(type.transformer)
-        when (type) {
-            TYPE.AES_ECB_NO_PADDING, TYPE.AES_ECB_PKCS_5_PADDING -> cipher.init(Cipher.ENCRYPT_MODE, spec)
-            else -> cipher.init(Cipher.ENCRYPT_MODE, spec, IvParameterSpec(ByteArray(16)))
-        }
-        return cipher.doFinal(ivBytes)
+        return initCipher(keyBytes, type, Cipher.ENCRYPT_MODE).doFinal(ivBytes)
     }
 
     fun aesEncrypt(
@@ -45,10 +49,8 @@ object AES {
         val iv = ArrayList<Byte>().apply {
             addAll(bytes)
             while (size %16 != 0) add(' '.code.toByte())
-        }
-      //  val ivBytes = data.padEnd((16 - data.length % 16) + data.length, ' ').toByteArray()
-      //  println("TAG ${ivBytes.size}")
-        return aesEncrypt(keyBytes, iv.toByteArray(), type)
+        }.toByteArray()
+        return aesEncrypt(keyBytes, iv, type)
     }
 
     fun aesDecrypt(
@@ -56,17 +58,7 @@ object AES {
         ivBytes: ByteArray,
         type: TYPE
     ): ByteArray {
-        when (keyBytes.size) {
-            16, 24, 32 -> {}
-            else -> throw Exception("keyBytes must have size of 16, 24 or 32 bytes")
-        }
-        val spec = SecretKeySpec(keyBytes, "AES")
-        val cipher = getCipher(type.transformer)
-        when (type) {
-            TYPE.AES_ECB_NO_PADDING, TYPE.AES_ECB_PKCS_5_PADDING -> cipher.init(Cipher.DECRYPT_MODE, spec)
-            else -> cipher.init(Cipher.DECRYPT_MODE, spec, IvParameterSpec(ByteArray(16)))
-        }
-        return cipher.doFinal(ivBytes)
+        return initCipher(keyBytes, type, Cipher.DECRYPT_MODE).doFinal(ivBytes)
     }
 
     fun aesDecryptAsString(
@@ -76,9 +68,4 @@ object AES {
     ): String {
         return aesDecrypt(keyBytes, ivBytes, type).decodeToString().trim()
     }
-
-
-
-
-
 }

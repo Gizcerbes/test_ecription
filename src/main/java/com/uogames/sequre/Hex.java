@@ -281,7 +281,17 @@ public class Hex implements Serializable{
 		}
 		return res;
 	}
-	
+
+	public long getLong2(final int start, final int end) {
+		long res = 0;
+		for (int i = 7, j = end, l = 0; i >= 0 && j >= start; i--, j--, l++) {
+			byte b = bytesList.get(j);
+			long va = (b & 0xFFL) << (l * 8);
+			res |= va;
+		}
+		return res;
+	}
+
 	public long getInvertLong(final int start,final int end){
 		long res = 0;
 		int form = 7;
@@ -299,6 +309,17 @@ public class Hex implements Serializable{
 		}
 		return res;
 	}
+
+	public long getInvertLong2(final int start, final int end) {
+		long res = 0;
+		for (int i = 7, j = start, l = 0; i >= 0 && j <= end; i--, j++, l++) {
+			byte b = bytesList.get(j);
+			long va = (b & 0xFFL) << (l * 8);
+			res |= va;
+		}
+		return res;
+	}
+
 
 	public float getFloat() {
 		return Float.intBitsToFloat(getInt());

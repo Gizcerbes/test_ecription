@@ -5,6 +5,7 @@ import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
+@Deprecated("use encoder from path encoder")
 object Encoder {
 
 
