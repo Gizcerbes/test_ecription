@@ -1,8 +1,6 @@
 package com.uogamse.sequre
 
-import com.uogames.sequre.encoder.AES
 import com.uogames.sequre.encoder.AES2
-import io.ktor.util.*
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 

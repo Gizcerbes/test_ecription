@@ -29,6 +29,7 @@ object AES {
         }
         val spec = SecretKeySpec(keyBytes, "AES")
         val cipher = getCipher(type.transformer)
+        println("TAG ${keyBytes.size} ${ivBytes.size}")
         when (type) {
             TYPE.AES_ECB_NO_PADDING, TYPE.AES_ECB_PKCS_5_PADDING -> cipher.init(Cipher.ENCRYPT_MODE, spec)
             else -> cipher.init(Cipher.ENCRYPT_MODE, spec, IvParameterSpec(ByteArray(16)))
